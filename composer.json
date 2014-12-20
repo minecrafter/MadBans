@@ -1,0 +1,18 @@
+{
+  "name": "minecrafter/MadBans",
+  "description": "Flexible web administration interface for many Minecraft banning plugins.",
+  "require": {
+    "bcosca/fatfree": "3.3.0",
+    "nesbot/carbon": "dev-master",
+    "rhumsaa/uuid": "2.8.0",
+    "navarr/minecraft-profile": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MadBans\\": "application/"
+    }
+  }
+}

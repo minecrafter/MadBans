@@ -8,6 +8,6 @@ class IndexController
 {
     public function index(Silex\Application $app)
     {
-        return $app["profile_repository"]->byUsername("tuxed")->getUuid()->toString();
+        return $app['twig']->render('index.twig');
     }
 }

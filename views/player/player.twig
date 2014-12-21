@@ -1,0 +1,12 @@
+{% extends "layout.twig" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block body %}
+    <h1>Information for {{ player.name }}</h1>
+    <ul>
+        <li>UUID: {{ player.uuid }}</li>
+    </ul>
+{% endblock %}

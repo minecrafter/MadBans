@@ -2,12 +2,14 @@
 
 namespace MadBans\Data;
 
+use Symfony\Component\Security\Core\User\User;
+
 class Admin
 {
     private $player;
     private $madbans_user;
 
-    public function __construct(Player $player, $madbans_admin)
+    public function __construct(Player $player, User $madbans_admin)
     {
         $this->player = $player;
         $this->madbans_admin = $madbans_admin;
@@ -26,12 +28,10 @@ class Admin
     /**
      * Returns the MadBans user for this admin.
      *
-     * @return mixed
+     * @return \Symfony\Component\Security\Core\User\User
      */
     public function getMadbansUser()
     {
         return $this->madbans_user;
     }
-
-
 }

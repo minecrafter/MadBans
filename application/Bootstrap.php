@@ -5,8 +5,10 @@ namespace MadBans;
 use MadBans\Repositories\Plugins\AdminPluginRegistry;
 use MadBans\Repositories\Profile\CachingProfileRepository;
 use MadBans\Repositories\Profile\OfflineProfileRepository;
+use MadBans\Repositories\Web\MbUserProvider;
 use MadBans\Settings\SettingsManager;
 use Silex;
+use Symfony\Component\HttpFoundation\Response;
 
 class Bootstrap
 {
@@ -27,6 +29,46 @@ class Bootstrap
         $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
             'dbs.options' => $db_options,
         ));
+
+        // Initialize URL generator
+        $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
+
+        // Initialize custom error handler
+        $app->error(function (\Exception $e, $code) use ($app) {
+            switch ($code) {
+                case 404:
+                    $message = $app['twig']->render('error/404.twig');
+                    break;
+                default:
+                    return;
+            }
+
+            return new Response($message);
+        });
+
+        // Initialize Twig
+        $app->register(new Silex\Provider\TwigServiceProvider(), array(
+            'twig.path' => __DIR__ . '/../views',
+        ));
+
+        // Initialize security manager
+        $app->register(new Silex\Provider\SessionServiceProvider());
+        /*$app->register(new Silex\Provider\SecurityServiceProvider(), array(
+            'security.firewalls' => array(
+                'login' => array(
+                    'pattern' => '^/login$',
+                    'anonymous' => true
+                ),
+                'secured' => array(
+                    'pattern' => '^.*',
+                    'form' => array('login_path' => '/login', 'check_path' => '/login_check'),
+                    'logout' => array('logout_path' => '/logout'),
+                )
+            ),
+            'users' => $app->share(function () use ($app) {
+                return new MbUserProvider($app['db']);
+            }),
+        ))*/;
 
         // Initialize settings manager
         $app['settings_manager'] = $app->share(function($app)
@@ -55,6 +97,7 @@ class Bootstrap
         });
 
         $app->get('/', 'MadBans\Controllers\IndexController::index')->bind('home');
+        $app->get('/p/{player}', 'MadBans\Controllers\PlayerController::find')->bind('player_info');
 
         return $app;
     }

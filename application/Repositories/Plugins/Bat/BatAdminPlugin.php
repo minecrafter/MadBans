@@ -3,6 +3,7 @@
 namespace MadBans\Repositories\Plugins\Bat;
 
 use MadBans\Repositories\Plugins\AdminPlugin;
+use MadBans\Repositories\Profile\MojangProfileRepository;
 use Silex;
 
 class BatAdminPlugin implements AdminPlugin

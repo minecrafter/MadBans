@@ -3,6 +3,7 @@
 namespace MadBans;
 
 use MadBans\Repositories\Plugins\AdminPluginRegistry;
+use MadBans\Repositories\Profile\CachingProfileRepository;
 use MadBans\Repositories\Profile\OfflineProfileRepository;
 use MadBans\Settings\SettingsManager;
 use Silex;
@@ -45,15 +46,7 @@ class Bootstrap
 
         $app['profile_repository'] = $app->share(function($app) use ($plugin)
         {
-            $offline_mode = $app['settings_manager']->get('offline_mode');
-
-            if ($offline_mode)
-            {
-                return new OfflineProfileRepository();
-            } else
-            {
-                return $plugin->getProfileRepository($app);
-            }
+            return new CachingProfileRepository($plugin->getProfileRepository($app), $app['db']);
         });
 
         $app['ban_repository'] = $app->share(function($app) use ($plugin)

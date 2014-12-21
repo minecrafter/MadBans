@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use MadBans\Data\Player;
 use MadBans\Repositories\ProfileRepository;
 use MadBans\Utilities\PdoHelper;
+use PDO;
 
 /**
  * CachingProfileRepository uses a database-backed UUID cache. While somewhat slow, this is needed to avoid
@@ -34,14 +35,14 @@ class CachingProfileRepository implements ProfileRepository
      */
     public function byUuid($uuid)
     {
-        $query = $this->db->prepare('SELECT name FROM cached_players WHERE uuid = :uuid AND expires < NOW()');
+        $query = $this->db->prepare('SELECT name FROM cached_players WHERE uuid = :uuid AND expires > NOW()');
         $query->execute([':uuid' => $uuid]);
 
-        $result = $query->fetch();
+        $result = $query->fetch(PDO::FETCH_ASSOC);
 
         if ($result)
         {
-            return Player::fromNameAndUuid($result[0], $uuid);
+            return Player::fromNameAndUuid($result['name'], $result['uuid']);
         } else
         {
             $internal_result = $this->delegate->byUuid($uuid);
@@ -64,14 +65,14 @@ class CachingProfileRepository implements ProfileRepository
      */
     public function byUsername($username)
     {
-        $query = $this->db->prepare('SELECT name, uuid FROM cached_players WHERE name = :name AND expires < NOW()');
+        $query = $this->db->prepare('SELECT name, uuid FROM cached_players WHERE name = :name AND expires > NOW()');
         $query->execute([':name' => $username]);
 
-        $result = $query->fetch();
+        $result = $query->fetch(PDO::FETCH_ASSOC);
 
         if ($result)
         {
-            return Player::fromNameAndUuid($result[0], $result[1]);
+            return Player::fromNameAndUuid($result['name'], $result['uuid']);
         } else
         {
             $internal_result = $this->delegate->byUsername($username);

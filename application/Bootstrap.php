@@ -17,7 +17,7 @@ class Bootstrap
         $app['debug'] = true;
 
         // Initialize database
-        $db_options = require(basename(__FILE__) . "/../configuration/db.php");
+        $db_options = require(__DIR__ . "/../configuration/db.php");
 
         if (count($db_options) == 0)
         {

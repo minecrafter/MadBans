@@ -2,7 +2,9 @@
   "name": "minecrafter/MadBans",
   "description": "Flexible web administration interface for many Minecraft banning plugins.",
   "require": {
-    "bcosca/fatfree": "3.3.0",
+    "silex/silex": "~1.1",
+    "doctrine/dbal": "2.2.*",
+    "symfony/validator": "~2.3",
     "nesbot/carbon": "dev-master",
     "rhumsaa/uuid": "2.8.0",
     "navarr/minecraft-profile": "dev-master"

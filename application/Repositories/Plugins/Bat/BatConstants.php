@@ -1,6 +1,6 @@
 <?php
 
-namespace MadBans\Repositories\Bat;
+namespace MadBans\Repositories\Plugins\Bat;
 
 class BatConstants
 {

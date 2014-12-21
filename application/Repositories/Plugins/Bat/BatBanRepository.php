@@ -1,8 +1,7 @@
 <?php
 
-namespace MadBans\Repositories\Bat;
+namespace MadBans\Repositories\Plugins\Bat;
 
-use MadBans\Base\Database;
 use MadBans\Data\Admin;
 use MadBans\Data\Ban;
 use MadBans\Data\IpAddress;
@@ -15,11 +14,11 @@ use MadBans\Utilities\UuidUtilities;
 
 class BatBanRepository implements BanRepository
 {
-    private $bat_db;
+    private $db;
 
-    public function __construct(Database $database)
+    public function __construct($db)
     {
-        $this->bat_db = $database->db;
+        $this->db = $db;
     }
 
     /**
@@ -33,12 +32,12 @@ class BatBanRepository implements BanRepository
         // Are we banning an IP or a player?
         if ($ban->target instanceof IpAddress)
         {
-            $query = $this->bat_db->prepare("INSERT INTO `BAT_ban` (ban_ip, ban_staff, ban_server, ban_end, ban_reason)
+            $query = $this->db->prepare("INSERT INTO `BAT_ban` (ban_ip, ban_staff, ban_server, ban_end, ban_reason)
 VALUES (:target, :staff, :server, :expiration, :reason)");
             $query->bindParam(":target", $ban->target->getIp());
         } else if ($ban->target instanceof Player)
         {
-            $query = $this->bat_db->prepare("INSERT INTO `BAT_ban` (UUID, ban_staff, ban_server, ban_end, ban_reason)
+            $query = $this->db->prepare("INSERT INTO `BAT_ban` (UUID, ban_staff, ban_server, ban_end, ban_reason)
 VALUES (:target, :staff, :server, :expiration, :reason)");
             $query->bindParam(":target", UuidUtilities::createMojangUuid($ban->target->getUuid()->toString()));
         } else
@@ -49,7 +48,7 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
         $query->bindParam(":staff", $ban->admin->getPlayer()->getName());
         $query->bindValue(":server", $ban->server->isGlobal() ? BatConstants::ALL_SERVERS : $ban->server->getName());
         $query->bindValue(":expiration", $ban->expiry ? PdoHelper::dateToPdo($ban->expiry) : FALSE, PDO::PARAM_NULL);
-        $query->bindParam(":reason", $reason);
+        $query->bindParam(":reason", $ban->reason);
 
         $query->execute();
     }
@@ -66,11 +65,11 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
         // Are we banning an IP or a player?
         if ($target instanceof IpAddress)
         {
-            $query = $this->bat_db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_server = :server");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_server = :server");
             $query->bindParam(":target", $target->getIp());
         } else if ($target instanceof Player)
         {
-            $query = $this->bat_db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_server = :server");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_server = :server");
             $query->bindParam(":target", $target->getUuid()->toString());
         } else
         {
@@ -120,11 +119,11 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
         // Are we banning an IP or a player?
         if ($target instanceof IpAddress)
         {
-            $query = $this->bat_db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_server = :server AND ban_end < NOW()");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_server = :server AND ban_end < NOW()");
             $query->bindParam(":target", $target->getIp());
         } else if ($target instanceof Player)
         {
-            $query = $this->bat_db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_server = :server AND ban_end < NOW()");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_server = :server AND ban_end < NOW()");
             $query->bindParam(":target", $target->getUuid()->toString());
         } else
         {
@@ -147,7 +146,7 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
      */
     public function rescindBan(Ban $ban, Admin $admin, $reason)
     {
-        $query = $this->bat_db->prepare("UPDATE BAT_ban SET ban_state = 0, ban_unbanreason = :reason, ban_unbanstaff = :actor, ban_unbandate = NOW()
+        $query = $this->db->prepare("UPDATE BAT_ban SET ban_state = 0, ban_unbanreason = :reason, ban_unbanstaff = :actor, ban_unbandate = NOW()
 WHERE ban_id = :banID AND ban_state = 1;");
         $query->execute([":reason" => $reason, ":actor" => $admin->getPlayer()->getName(), ":banID" => $ban->id]);
     }

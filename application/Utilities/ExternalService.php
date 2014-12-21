@@ -4,11 +4,25 @@ namespace MadBans\Utilities;
 
 class ExternalService
 {
-    public static function avatarUri($username, $size = 32)
+    private $app;
+
+    public function __construct(\Silex\Application $app)
     {
-        if (Configuration::isOfflineMode())
+        $this->app = $app;
+    }
+
+    /**
+     * Generates an avatar URL. Offline mode servers get the Steve head, others get a Cravatar link.
+     *
+     * @param string $username
+     * @param int $size
+     * @return string
+     */
+    public function avatarUri($username, $size = 32)
+    {
+        if ($this->app['settings_manager']->get('offline_mode'))
             return "/img/steve_head.png";
 
-        return "http://cravatar.eu/avatar/" . $username . "/" . $size;
+        return "//cravatar.eu/avatar/" . $username . "/" . $size;
     }
 }

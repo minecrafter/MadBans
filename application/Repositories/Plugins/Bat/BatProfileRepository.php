@@ -1,19 +1,18 @@
 <?php
 
-namespace MadBans\Repositories\Bat;
+namespace MadBans\Repositories\Plugins\Bat;
 
-use MadBans\Base\Database;
 use MadBans\Data\Player;
 use MadBans\Repositories\ProfileRepository;
 use MadBans\Utilities\UuidUtilities;
 
 class BatProfileRepository implements ProfileRepository
 {
-    private $bat_db;
+    private $db;
 
-    public function __construct(Database $database)
+    public function __construct($db)
     {
-        $this->bat_db = $database->db;
+        $this->db = $db;
     }
 
     /**
@@ -24,7 +23,7 @@ class BatProfileRepository implements ProfileRepository
      */
     public function byUuid($uuid)
     {
-        $query = $this->bat_db->prepare('SELECT BAT_player FROM BAT_players WHERE UUID = :uuid');
+        $query = $this->db->prepare('SELECT BAT_player FROM BAT_players WHERE UUID = :uuid');
         $query->execute([':uuid' => UuidUtilities::createMojangUuid($uuid)]);
 
         $result = $query->fetch();
@@ -46,7 +45,7 @@ class BatProfileRepository implements ProfileRepository
      */
     public function byUsername($username)
     {
-        $query = $this->bat_db->prepare('SELECT UUID FROM BAT_players WHERE BAT_player = :player');
+        $query = $this->db->prepare('SELECT UUID FROM BAT_players WHERE BAT_player = :player');
         $query->execute([':player' => $username]);
 
         $result = $query->fetch();

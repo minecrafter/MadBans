@@ -2,10 +2,12 @@
 
 namespace MadBans\Controllers;
 
+use Silex;
+
 class IndexController
 {
-    public static function index()
+    public function index(Silex\Application $app)
     {
-        echo "test";
+        return "test";
     }
 }

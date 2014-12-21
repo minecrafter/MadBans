@@ -2,31 +2,60 @@
 
 namespace MadBans;
 
-use Base;
-use MadBans\Base\Database;
+use MadBans\Repositories\Plugins\AdminPluginRegistry;
+use MadBans\Repositories\Profile\OfflineProfileRepository;
+use MadBans\Settings\SettingsManager;
+use Silex;
 
 class Bootstrap
 {
-    private static $initialized = false;
-    public static $database;
-
-    public static function initialize()
+    public function initialize()
     {
-        if (self::$initialized)
+        // Configure the application
+        $app = new Silex\Application();
+        $app['debug'] = true;
+
+        // Initialize database
+        /*$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+            'db.options' => require_once(basename(__FILE__) . "/../configuration/db.php"),
+        ));
+
+        // Initialize settings manager
+        $app['settings_manager'] = $app->share(function($app)
         {
-            throw new \Exception("MadBans already initialized");
+            return new SettingsManager($app);
+        });
+
+        // Now we have enough infrastructure running to determine everything else
+        $banning_plugin_backend = $app['settings_manager']->get('backend');
+        $manager = new AdminPluginRegistry();
+        $plugin = $manager->get($banning_plugin_backend);
+
+        if (!$plugin)
+        {
+            $app->abort(403, "The specified banning plugin backend is no longer valid.");
         }
 
-        self::$initialized = TRUE;
+        $app['profile_repository'] = $app->share(function($app) use ($plugin)
+        {
+            $offline_mode = $app['settings_manager']->get('offline_mode');
 
-        $f3 = Base::instance();
+            if ($offline_mode)
+            {
+                return new OfflineProfileRepository();
+            } else
+            {
+                return $plugin->getProfileRepository($app);
+            }
+        });
 
-        // Configure MadBans database.
-        self::$database = new Database($f3->get('madbans.local_db'));
+        $app['ban_repository'] = $app->share(function($app) use ($plugin)
+        {
+            return $plugin->getBanRepository($app);
+        });*/
 
-        // Configure F3 routes.
-        $f3 = Base::instance();
-        $f3->route('GET /', 'MadBans\Controllers\IndexController::index');
-        return $f3->run();
+        $app->get('/', 'MadBans\Controllers\IndexController::index')->bind('home');
+
+        return $app;
     }
 }

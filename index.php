@@ -9,9 +9,6 @@
 // Require Composer's autoloader.
 require_once("vendor/autoload.php");
 
-// Load some configuration
-require_once("configuration/db.php");
-
 // Bootstrap the application.
 $bootstrap = new \MadBans\Bootstrap();
 $bootstrap->initialize()->run();

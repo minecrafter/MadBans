@@ -7,8 +7,8 @@ By default, support for BungeeAdminTools and BanManager is available. Other prov
 ## Features
 
 * Clean interface
-* Written in PHP using the Fat-Free Framework
-* UUID-safe (convert from player names and UUIDs with ease)
+* Written in PHP using [Silex](http://silex.sensiolabs.org/)
+* UUID-safe (converts from player names and UUIDs automatically)
 * Highly extensible
 
 ## Demo

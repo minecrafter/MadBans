@@ -16,8 +16,15 @@ class Bootstrap
         $app['debug'] = true;
 
         // Initialize database
-        /*$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
-            'db.options' => require_once(basename(__FILE__) . "/../configuration/db.php"),
+        $db_options = require(basename(__FILE__) . "/../configuration/db.php");
+
+        if (count($db_options) == 0)
+        {
+            die("Looks like your database is not set up.");
+        }
+
+        $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+            'dbs.options' => $db_options,
         ));
 
         // Initialize settings manager
@@ -33,7 +40,7 @@ class Bootstrap
 
         if (!$plugin)
         {
-            $app->abort(403, "The specified banning plugin backend is no longer valid.");
+            die("The specified banning plugin backend " . $banning_plugin_backend . " is no longer valid.");
         }
 
         $app['profile_repository'] = $app->share(function($app) use ($plugin)
@@ -52,7 +59,7 @@ class Bootstrap
         $app['ban_repository'] = $app->share(function($app) use ($plugin)
         {
             return $plugin->getBanRepository($app);
-        });*/
+        });
 
         $app->get('/', 'MadBans\Controllers\IndexController::index')->bind('home');
 

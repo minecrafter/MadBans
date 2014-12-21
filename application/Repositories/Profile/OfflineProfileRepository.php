@@ -24,6 +24,7 @@ class OfflineProfileRepository implements ProfileRepository
     public function byUuid($uuid)
     {
         // Unfortunately, due to the way offline mode works, you can't turn a offline-mode UUID into a username.
+        // Instead, this is approximated by caching the UUIDs generated.
         return FALSE;
     }
 

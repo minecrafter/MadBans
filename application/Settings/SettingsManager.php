@@ -28,11 +28,12 @@ class SettingsManager
 
         $result = $this->db->createQueryBuilder()
             ->select('value')
-            ->where('setting', '?')
+            ->from('settings', 'settings')
+            ->where('settings.setting = ?')
             ->setParameter(0, $setting)
             ->execute();
 
-        $final = $result ? $result[0] : $default;
+        $final = $result ? $result->fetch()['value'] : $default;
         $this->cache[$setting] = $final;
 
         return $final;

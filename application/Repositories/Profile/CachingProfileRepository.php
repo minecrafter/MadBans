@@ -9,7 +9,7 @@ use MadBans\Utilities\PdoHelper;
 
 /**
  * CachingProfileRepository uses a database-backed UUID cache. While somewhat slow, this is needed to avoid
- * the Mojang API ratelimiting.
+ * Mojang API ratelimiting and enable reverse player name lookups for offline-mode players.
  *
  * CachingProfileRepository by default caches associations for three days.
  *

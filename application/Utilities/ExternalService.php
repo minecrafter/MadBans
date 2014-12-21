@@ -20,7 +20,7 @@ class ExternalService
      */
     public function avatarUri($username, $size = 32)
     {
-        if ($this->app['settings_manager']->get('offline_mode'))
+        if ($this->app['settings_manager']->get('offline_mode') == 'true')
             return "/img/steve_head.png";
 
         return "//cravatar.eu/avatar/" . $username . "/" . $size;

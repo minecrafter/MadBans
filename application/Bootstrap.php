@@ -7,8 +7,11 @@ use MadBans\Repositories\Profile\CachingProfileRepository;
 use MadBans\Repositories\Profile\OfflineProfileRepository;
 use MadBans\Repositories\Web\MbUserProvider;
 use MadBans\Settings\SettingsManager;
+use MadBans\Utilities\ExternalService;
+use MadBans\Utilities\UuidUtilities;
 use Silex;
 use Symfony\Component\HttpFoundation\Response;
+use Twig_SimpleFunction;
 
 class Bootstrap
 {
@@ -26,7 +29,8 @@ class Bootstrap
             die("Looks like your database is not set up.");
         }
 
-        $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+        $app->register(new Silex\Provider\DoctrineServiceProvider(), array
+        (
             'dbs.options' => $db_options,
         ));
 
@@ -34,7 +38,8 @@ class Bootstrap
         $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
 
         // Initialize custom error handler
-        $app->error(function (\Exception $e, $code) use ($app) {
+        $app->error(function (\Exception $e, $code) use ($app)
+        {
             switch ($code) {
                 case 404:
                     $message = $app['twig']->render('error/404.twig');
@@ -47,9 +52,30 @@ class Bootstrap
         });
 
         // Initialize Twig
-        $app->register(new Silex\Provider\TwigServiceProvider(), array(
+        $app->register(new Silex\Provider\TwigServiceProvider(), array
+        (
             'twig.path' => __DIR__ . '/../views',
         ));
+
+        $app['external_service'] = $app->share(function($app)
+        {
+            return new ExternalService($app);
+        });
+
+        $app['twig']->addFunction(new Twig_SimpleFunction('avatar_uri', function ($player, $size) use ($app)
+        {
+            if (!is_numeric($size))
+            {
+                throw new \InvalidArgumentException;
+            }
+
+            if (!UuidUtilities::validMinecraftUsername($player->getName()))
+            {
+                throw new \InvalidArgumentException;
+            }
+
+            return $app['external_service']->avatarUri($player->getName(), $size);
+        }));
 
         // Initialize security manager
         $app->register(new Silex\Provider\SessionServiceProvider());
@@ -91,12 +117,20 @@ class Bootstrap
             return new CachingProfileRepository($plugin->getProfileRepository($app), $app['db']);
         });
 
+        $app['lookup_repository'] = $app->share(function($app) use ($plugin)
+        {
+            // CachingProfileRepository implements our lookup repository.
+            return $app['profile_repository'];
+        });
+
         $app['ban_repository'] = $app->share(function($app) use ($plugin)
         {
             return $plugin->getBanRepository($app);
         });
 
         $app->get('/', 'MadBans\Controllers\IndexController::index')->bind('home');
+        $app->get('/a/_lookahead_player', 'MadBans\Controllers\PlayerController::lookahead')->bind('player_lookahead');
+        $app->get('/a/_lookup_submit', 'MadBans\Controllers\PlayerController::lookupSubmit')->bind('lookup_submit');
         $app->get('/p/{player}', 'MadBans\Controllers\PlayerController::find')->bind('player_info');
 
         return $app;

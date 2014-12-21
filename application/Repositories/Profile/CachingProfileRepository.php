@@ -4,6 +4,7 @@ namespace MadBans\Repositories\Profile;
 
 use Carbon\Carbon;
 use MadBans\Data\Player;
+use MadBans\Repositories\PlayerLookupRepository;
 use MadBans\Repositories\ProfileRepository;
 use MadBans\Utilities\PdoHelper;
 use PDO;
@@ -16,7 +17,7 @@ use PDO;
  *
  * @package MadBans\Repositories\Profile
  */
-class CachingProfileRepository implements ProfileRepository
+class CachingProfileRepository implements ProfileRepository, PlayerLookupRepository
 {
     private $delegate;
     private $db;
@@ -42,7 +43,7 @@ class CachingProfileRepository implements ProfileRepository
 
         if ($result)
         {
-            return Player::fromNameAndUuid($result['name'], $result['uuid']);
+            return Player::fromNameAndUuid($result['name'], $uuid);
         } else
         {
             $internal_result = $this->delegate->byUuid($uuid);
@@ -90,7 +91,22 @@ class CachingProfileRepository implements ProfileRepository
     private function persist(Player $player)
     {
         $expires = Carbon::now()->addDays(3);
+
         $query = $this->db->prepare('INSERT INTO cached_players (uuid, name, expires) VALUES (:uuid, :name, :expires)');
         $query->execute([':uuid' => $player->getUuid()->toString(), 'name' => $player->getName(), 'expires' => PdoHelper::dateToPdo($expires)]);
+    }
+
+    /**
+     * Attempts a lookup of possible players.
+     *
+     * @param string $term
+     * @return array
+     */
+    public function search($term)
+    {
+        $query = $this->db->prepare('SELECT name, uuid FROM cached_players WHERE name LIKE :term AND expires > NOW() LIMIT 10');
+        $query->execute([':term' => '%' . $term . '%']);
+
+        return $query->fetchAll(PDO::FETCH_ASSOC) ?: array();
     }
 }

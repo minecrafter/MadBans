@@ -30,11 +30,11 @@ class PlayerController
             if (preg_match_all('/' . UuidUtilities::VALID_MOJANG_UUID . '/', $player))
             {
                 $uuid = UuidUtilities::createJavaUuid($player);
-                $p = $app['profile_repository']->byUuid($player);
+                $p = $app['profile_repository']->byUuid($uuid);
             } elseif (Uuid::isValid($player))
             {
                 $uuid = $player;
-                $p = $app['profile_repository']->byUuid($player);
+                $p = $app['profile_repository']->byUuid($uuid);
             }
         }
 
@@ -52,5 +52,36 @@ class PlayerController
         // Player is out of our way.
         // TODO: Add in banning stuff!
         return $app['twig']->render('player/player.twig', ['player' => $p]);
+    }
+
+    public function lookahead(Silex\Application $app, Request $request)
+    {
+        $term = $request->get('term');
+
+        if (!$term)
+        {
+            $app->abort(404);
+        }
+
+        return $app->json($app['lookup_repository']->search($term));
+    }
+
+    public function lookupSubmit(Silex\Application $app, Request $request)
+    {
+        $term = $request->get('term');
+
+        if (!$term)
+        {
+            $app->abort(404);
+        }
+
+        $search = $app['lookup_repository']->search($term);
+
+        if (count($search) > 0)
+        {
+            return $app->redirect($app['url_generator']->generate('player_info', ['player' => $search[0]['name']]));
+        }
+
+        $app->abort(404);
     }
 }

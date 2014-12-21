@@ -2,7 +2,9 @@
 
 namespace MadBans\Repositories;
 
+use MadBans\Data\Admin;
 use MadBans\Data\Ban;
+use MadBans\Data\Server;
 use MadBans\Data\TargetableTrait;
 
 /**
@@ -22,25 +24,29 @@ interface BanRepository
      * Fetches all bans recorded in the database for a target.
      *
      * @param TargetableTrait $target
+     * @param Server $server
      * @return array
      */
-    public function getBans(TargetableTrait $target);
+    public function getBans(TargetableTrait $target, Server $server);
 
     /**
      * Determines if the target is currently banned.
      *
      * @param TargetableTrait $target
+     * @param Server $server
      * @return bool
      */
-    public function isCurrentlyBanned(TargetableTrait $target);
+    public function isCurrentlyBanned(TargetableTrait $target, Server $server);
 
     /**
      * Rescinds the ban for a player. This operation must always
      * leave a "unbanned" marker. You should NOT remove bans from the database.
      *
      * @param Ban $ban
+     * @param Admin $admin
+     * @param string $reason
      */
-    public function rescindBan(Ban $ban);
+    public function rescindBan(Ban $ban, Admin $admin, $reason);
 
     /**
      * Determines whether or not this repository accepts player bans.

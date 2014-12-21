@@ -11,6 +11,7 @@ namespace MadBans\Data;
 trait RescindableTrait
 {
     public $rescinded;
+    public $rescinder;
     public $rescind_date;
     public $rescind_reason;
 }

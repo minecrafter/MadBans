@@ -35,6 +35,6 @@ class OfflineProfileRepository implements ProfileRepository
      */
     public function byUsername($username)
     {
-        return Player::fromNameAndUuid($username, UuidUtilities::constructOfflinePlayerUuid($username)->toString());
+        return Player::fromNameAndUuid($username, UuidUtilities::constructOfflinePlayerUuid($username));
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-use Rhumsaa\Uuid\Uuid;
 use MadBans\Utilities\UuidUtilities;
 
 class UuidUtilitiesTest extends PHPUnit_Framework_TestCase
@@ -8,7 +7,7 @@ class UuidUtilitiesTest extends PHPUnit_Framework_TestCase
     public function testOfflineUuidValidity()
     {
         $phpUuid = UuidUtilities::constructOfflinePlayerUuid("tuxed");
-        $this->assertEquals(Uuid::fromString("708f6260-183d-3912-bbde-5e279a5e739a"), $phpUuid);
+        $this->assertEquals("708f6260-183d-3912-bbde-5e279a5e739a", $phpUuid);
     }
 
     public function testUsernameValidity()

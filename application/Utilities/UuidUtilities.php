@@ -25,20 +25,20 @@ class UuidUtilities
      * Generates a offline-mode player UUID.
      *
      * @param $username string
-     * @return \Rhumsaa\Uuid\Uuid
+     * @return string
      */
     public static function constructOfflinePlayerUuid($username)
     {
         $data = hex2bin(md5("OfflinePlayer:" . $username));
         $data[6] = chr(ord($data[6]) & 0x0f | 0x30); // version 3 UUID
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // IETF variant
-        return Uuid::fromBytes($data);
+        return self::createJavaUuid(bin2hex($data));
     }
 
     /**
      * Verifies if the specified username could be a valid Minecraft username.
      *
-     * @param $username string
+     * @param string $username
      * @return bool
      */
     public static function validMinecraftUsername($username)
@@ -49,7 +49,7 @@ class UuidUtilities
     /**
      * Translates a Mojang UUID into a Java UUID.
      *
-     * @param $mojang_uuid string
+     * @param string $mojang_uuid
      * @return string
      */
     public static function createJavaUuid($mojang_uuid)
@@ -73,11 +73,16 @@ class UuidUtilities
     /**
      * Translate a Java UUID into a Mojang UUID.
      *
-     * @param $java_uuid string
+     * @param \Rhumsaa\Uuid\Uuid|string $uuid
      * @return string
      */
-    public static function createMojangUuid($java_uuid)
+    public static function createMojangUuid($uuid)
     {
-        return str_replace('-', '', $java_uuid);
+        if ($uuid instanceof Uuid)
+        {
+            return str_replace('-', '', $uuid->toString());
+        }
+
+        return str_replace('-', '', $uuid);
     }
 }

@@ -11,4 +11,5 @@ class Ban
     public $date;
     public $reason;
     public $expiry;
+    public $server;
 }

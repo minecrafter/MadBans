@@ -6,18 +6,29 @@ use InvalidArgumentException;
 
 class IpAddress
 {
-    public $ip;
+    private $ip;
 
     private function __construct($ip)
     {
         $this->ip = $ip;
     }
 
+    /**
+     * Returns an object describing the request's IPv4 address.
+     *
+     * @return IpAddress
+     */
     public static function current()
     {
         return self::fromIpv4($_SERVER['REMOTE_ADDRESS']);
     }
 
+    /**
+     * Returns an object with the specified IPv4 address.
+     *
+     * @param $address
+     * @return IpAddress
+     */
     public static function fromIpv4($address)
     {
         // Ensure validity
@@ -44,5 +55,15 @@ class IpAddress
         }
 
         return new self($address);
+    }
+
+    /**
+     * Returns the IP address.
+     *
+     * @return string
+     */
+    public function getIp()
+    {
+        return $this->ip;
     }
 }

@@ -2,15 +2,16 @@
   "name": "minecrafter/MadBans",
   "description": "Flexible web administration interface for many Minecraft banning plugins.",
   "require": {
-    "silex/silex": "~1.1",
-    "doctrine/dbal": "2.2.*",
-    "symfony/validator": "~2.3",
+    "silex/silex": "~1.2",
+    "doctrine/dbal": "~2.4",
+    "symfony/validator": "~2.6",
     "nesbot/carbon": "dev-master",
     "rhumsaa/uuid": "2.8.0",
     "navarr/minecraft-profile": "dev-master",
     "twig/twig": ">=1.8,<2.0-dev",
-    "symfony/twig-bridge": "~2.3",
-    "symfony/security": "~2.3"
+    "symfony/twig-bridge": "~2.6",
+    "symfony/security": "~2.6",
+    "jasongrimes/silex-simpleuser": "~2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "4.4.0"

@@ -21,22 +21,30 @@ interface BanRepository
     public function createBan(Ban $ban);
 
     /**
-     * Fetches all bans recorded in the database for a target.
+     * Fetches a ban from the database.
      *
-     * @param TargetableTrait $target
-     * @param Server $server
+     * @param integer $id
+     * @return Ban
+     */
+    public function getBan($id);
+
+    /**
+     * Fetches all bans recorded in the database for a target, ordered by ban date.
+     *
+     * @param $target
+     * @param $server
      * @return array
      */
-    public function getBans(TargetableTrait $target, Server $server);
+    public function getBans($target, $server);
 
     /**
      * Determines if the target is currently banned.
      *
-     * @param TargetableTrait $target
+     * @param $target
      * @param Server $server
      * @return bool
      */
-    public function isCurrentlyBanned(TargetableTrait $target, Server $server);
+    public function isCurrentlyBanned($target, $server);
 
     /**
      * Rescinds the ban for a player. This operation must always

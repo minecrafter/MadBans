@@ -1,27 +1,48 @@
 {% extends "layout.twig" %}
 
 {% block title %}
-    Home
+    Information for {{ player.name }}
 {% endblock %}
 
 {% block body %}
     <div class="jumbotron">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-sm-8">
                 <h1><img src="{{ avatar_uri(player, 64) }}" height="64" width="64" alt="{{ player.name }}'s avatar"/> {{ player.name }}</h1>
+            </div>
+            <div class="col-sm-4">
+                <h1><span class="label label-danger pull-right">Banned</span></h1>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-sm-7">
             <h2>Bans</h2>
-        </div>
-        <div class="col-md-5">
-            <h2>Technical Information</h2>
-            <ul>
-                <li>UUID: <strong>{{ player.uuid }}</strong></li>
-            </ul>
+            {% if bans is empty %}
+                <p>No bans are available for this player.</p>
+            {% else %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Banned</th>
+                            <th>Expiry</th>
+                            <th>Reason</th>
+                            <th>Rescinded</th>
+                        </tr>
+                    </thead>
+                    {% for ban in bans %}
+                        <tr>
+                            <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
+                            <td>{{ ban.date|datediff }}</td>
+                            <td>{{ ban.expiry|datediff }}</td>
+                            <td>{{ ban.reason }}</td>
+                            <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,39 @@
+{% extends "layout.twig" %}
+
+{% block title %}
+    Information on ban ID {{ ban.id }}
+{% endblock %}
+
+{% block body %}
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-sm-8">
+                <h1>Ban for <img src="{{ avatar_uri(ban.target, 64) }}" height="64" width="64" alt="{{ ban.target.name }}'s avatar"/> {{ ban.target.name }}</h1>
+            </div>
+            <div class="col-sm-4">
+                <h1><span class="label label-info pull-right">Expired</span></h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table">
+                <tr>
+                    <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
+                    <td>{{ ban.date|datediff }}</td>
+                    <td>{{ ban.expiry|datediff }}</td>
+                    <td>{{ ban.reason }}</td>
+                    <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
+                    <td>{{ ban.date|datediff }}</td>
+                    <td>{{ ban.expiry|datediff }}</td>
+                    <td>{{ ban.reason }}</td>
+                    <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+{% endblock %}

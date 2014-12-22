@@ -9,6 +9,7 @@
 namespace MadBans\Controllers;
 
 use MadBans\Data\AjaxResponse;
+use MadBans\Security\MadBansRoles;
 use MadBans\Utilities\UuidUtilities;
 use Rhumsaa\Uuid\Uuid;
 use Silex;
@@ -49,9 +50,19 @@ class PlayerController
             }
         }
 
-        // Player is out of our way.
-        // TODO: Add in banning stuff!
-        return $app['twig']->render('player/player.twig', ['player' => $p]);
+        // Query bans, if we can view them.
+        /*if ($app['user'] && $app['security']->isGranted(MadBansRoles::VIEW_BAN_INFORMATION))
+        {
+            $bans = $app['ban_repository']->getBans($p, FALSE);
+        } else
+        {
+            $bans = array();
+        }*/
+
+        // TODO: Uncomment above section when security is sufficiently working.
+        $bans = $app['ban_repository']->getBans($p, NULL);
+
+        return $app['twig']->render('player/player.twig', ['player' => $p, 'bans' => $bans]);
     }
 
     public function lookahead(Silex\Application $app, Request $request)
@@ -72,6 +83,12 @@ class PlayerController
 
         if (!$term)
         {
+            $app->abort(404);
+        }
+
+        if (strlen($term) < 2)
+        {
+            // term is too short
             $app->abort(404);
         }
 

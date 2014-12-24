@@ -35,4 +35,10 @@ class Server
     {
         return $this->name;
     }
+
+    function __toString()
+    {
+        return $this->isGlobal() ? "all servers" : $this->name;
+    }
+
 }

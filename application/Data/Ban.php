@@ -4,12 +4,16 @@ namespace MadBans\Data;
 
 class Ban
 {
-    use RescindableTrait, TargetableTrait;
+    use RescindableTrait, TargetableTrait, ExpirableTrait;
 
     public $id;
     public $admin;
     public $date;
     public $reason;
-    public $expiry;
     public $server;
+
+    public function getStatus()
+    {
+
+    }
 }

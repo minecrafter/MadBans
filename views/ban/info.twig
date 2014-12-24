@@ -11,29 +11,35 @@
                 <h1>Ban for <img src="{{ avatar_uri(ban.target, 64) }}" height="64" width="64" alt="{{ ban.target.name }}'s avatar"/> {{ ban.target.name }}</h1>
             </div>
             <div class="col-sm-4">
-                <h1><span class="label label-info pull-right">Expired</span></h1>
+                <h1>
+                    {% if ban.expired %}
+                    <span class="label label-info pull-right">Expired</span>
+                    {% else if ban.rescinded %}
+                    <span class="label label-info pull-right">Rescinded</span>
+                    {% endif %}
+                </h1>
             </div>
         </div>
     </div>
 
     <div class="row">
+        <div class="col-sm-6">
+            <h2>Ban Information</h2>
+        </div>
+        <div class="col-sm-6">
+
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-sm-12">
-            <table class="table">
-                <tr>
-                    <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
-                    <td>{{ ban.date|datediff }}</td>
-                    <td>{{ ban.expiry|datediff }}</td>
-                    <td>{{ ban.reason }}</td>
-                    <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
-                </tr>
-                <tr>
-                    <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
-                    <td>{{ ban.date|datediff }}</td>
-                    <td>{{ ban.expiry|datediff }}</td>
-                    <td>{{ ban.reason }}</td>
-                    <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
-                </tr>
-            </table>
+            <ul>
+                <li><strong>Banning admin</strong>: {{ ban.admin }}</li>
+                <li><strong>Ban created</strong>: {{ ban.date }}</li>
+                <li><strong>Ban reason</strong>: {{ ban.reason }}</li>
+                <li><strong>Ban expiry</strong>: {{ ban.expiry }}</li>
+                <li><strong>Ban server</strong>: {{ ban.server }}</li>
+            </ul>
         </div>
     </div>
 {% endblock %}

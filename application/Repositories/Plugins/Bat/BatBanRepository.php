@@ -203,12 +203,12 @@ WHERE ban_id = :banID AND ban_state = 1;");
         $ban->reason = $res['ban_reason'];
         $ban->expiry = $res['ban_end'] ? PdoHelper::dateFromPdo($res['ban_end']) : FALSE;
 
-        if ($res['server'] === BatConstants::ALL_SERVERS)
+        if ($res['ban_server'] === BatConstants::ALL_SERVERS)
         {
             $ban->server = Server::matchAll();
         } else
         {
-            $ban->server = Server::create($res['server']);
+            $ban->server = Server::create($res['ban_server']);
         }
 
         $ban->rescinded = !$res['ban_state'];

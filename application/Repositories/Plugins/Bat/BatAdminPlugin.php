@@ -16,8 +16,7 @@ class BatAdminPlugin implements AdminPlugin
      */
     public function getProfileRepository(Silex\Application $app)
     {
-        //return new BatProfileRepository($app['dbs']['bat']);
-        return new MojangProfileRepository();
+        return new BatProfileRepository($app['dbs']['bat']);
     }
 
     /**

@@ -29,7 +29,7 @@ interface BanRepository
     public function getBan($id);
 
     /**
-     * Fetches all bans recorded in the database for a target, ordered by ban date.
+     * Fetches all bans recorded in the database for a target, ordered by ban date in descending order.
      *
      * @param $target
      * @param $server

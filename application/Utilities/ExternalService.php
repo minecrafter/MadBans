@@ -4,11 +4,11 @@ namespace MadBans\Utilities;
 
 class ExternalService
 {
-    private $app;
+    private $site_config;
 
-    public function __construct(\Silex\Application $app)
+    public function __construct($site_config)
     {
-        $this->app = $app;
+        $this->site_config = $site_config;
     }
 
     /**
@@ -20,7 +20,7 @@ class ExternalService
      */
     public function avatarUri($username, $size = 32)
     {
-        if ($this->app['settings_manager']->get('offline_mode') == 'true')
+        if ($this->site_config['offline_mode'])
             return "/img/steve_head.png";
 
         return "//cravatar.eu/avatar/" . $username . "/" . $size;

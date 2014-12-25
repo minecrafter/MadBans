@@ -74,7 +74,7 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
     }
 
     /**
-     * Fetches all bans recorded in the database for a target, ordered by ban date.
+     * Fetches all bans recorded in the database for a target, ordered by ban date in descending order.
      *
      * @param $target
      * @param $server
@@ -86,11 +86,11 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
 
         if ($target instanceof IpAddress)
         {
-            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target " . $add . "ORDER BY ban_begin");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target " . $add . "ORDER BY ban_begin DESC");
             $query->bindParam(":target", $target->getIp());
         } else if ($target instanceof Player)
         {
-            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target " . $add . "ORDER BY ban_begin");
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target " . $add . "ORDER BY ban_begin DESC");
             $query->bindParam(":target", UuidUtilities::createMojangUuid($target->getUuid()));
         } else
         {
@@ -127,11 +127,11 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
 
         if ($target instanceof IpAddress)
         {
-            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_end < NOW()" . $add);
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE ban_ip = :target AND ban_end > NOW()" . $add);
             $query->bindParam(":target", $target->getIp());
         } else if ($target instanceof Player)
         {
-            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_end < NOW()" . $add);
+            $query = $this->db->prepare("SELECT * FROM `BAT_ban` WHERE UUID = :target AND ban_end > NOW()" . $add);
             $query->bindParam(":target", UuidUtilities::createMojangUuid($target->getUuid()));
         } else
         {
@@ -145,7 +145,7 @@ VALUES (:target, :staff, :server, :expiration, :reason)");
 
         $query->execute();
 
-        return $query->columnCount() > 0;
+        return $query->fetch();
     }
 
     /**

@@ -11,7 +11,15 @@
                 <h1><img src="{{ avatar_uri(player, 64) }}" height="64" width="64" alt="{{ player.name }}'s avatar"/> {{ player.name }}</h1>
             </div>
             <div class="col-sm-4">
-                <h1><span class="label label-danger pull-right">Banned</span></h1>
+                {% if status %}
+                <h1>
+                    <span class="label label-danger pull-right">
+                        {% if status == 'globalban' %}
+                        Banned
+                        {% endif %}
+                    </span>
+                </h1>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -25,20 +33,28 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Banned</th>
                             <th>Expiry</th>
                             <th>Reason</th>
-                            <th>Rescinded</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     {% for ban in bans %}
                         <tr>
-                            <td><a href="{{ app.url_generator.generate('ban_info', {id: ban.id}) }}">{{ ban.id }}</a></td>
                             <td>{{ ban.date|datediff }}</td>
-                            <td>{{ ban.expiry|datediff }}</td>
+                            <td>{% if ban.expiry %}
+                                {{ ban.expiry|datediff }}
+                                {% else %}
+                                Indefinite
+                                {% endif %}</td>
                             <td>{{ ban.reason }}</td>
-                            <td>{% if ban.rescinded %}Yes{% else %}No{% endif %}</td>
+                            <td>{% if ban.expired %}
+                                    <span class="label label-danger pull-left">Expired</span>
+                                {% elseif ban.rescinded %}
+                                    <span class="label label-danger pull-left">Rescinded</span>
+                                {% else %}
+                                    <span class="label label-info pull-left">In effect</span>
+                                {% endif %}</td>
                         </tr>
                     {% endfor %}
                 </table>

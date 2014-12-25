@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use MadBans\Repositories\Plugins\AdminPluginRegistry;
 use MadBans\Repositories\Profile\CachingProfileRepository;
 use MadBans\Security\MadBansRoles;
+use MadBans\Services\MadBansServiceProvider;
 use MadBans\Settings\SettingsManager;
 use MadBans\Utilities\ExternalService;
 use MadBans\Utilities\UuidUtilities;
+use ReflectionClass;
 use Silex;
 use SimpleUser;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,21 +24,34 @@ class Bootstrap
         $app = new Silex\Application();
         $app['debug'] = true;
 
-        // Initialize database
-        $db_options = require(__DIR__ . "/../configuration/db.php");
+        // Determine if we have any configuration
+        $install_mode = FALSE;
 
-        if (count($db_options) == 0)
+        if (!file_exists(__DIR__ . "/../configuration/site.php") ||
+            !file_exists(__DIR__ . "/../configuration/db.php"))
         {
-            die("Looks like your database is not set up.");
+            $install_mode = TRUE;
         }
 
+        // Initialize configuration
+        $db_options = include(__DIR__ . "/../configuration/db.php");
+        $site_options = include(__DIR__ . "/../configuration/site.php");
+
+        // Initialize all services
         $app->register(new Silex\Provider\DoctrineServiceProvider(), array
         (
             'dbs.options' => $db_options,
         ));
-
-        // Initialize URL generator
+        // Initialize our handler.
+        $app->register(new MadBansServiceProvider($site_options));
+        $app->register(new Silex\Provider\TwigServiceProvider(), array
+        (
+            'twig.path' => __DIR__ . '/../views',
+        ));
+        $app->register(new Silex\Provider\SessionServiceProvider());
         $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
+
+        $app->boot();
 
         // Initialize custom error handler
         $app->error(function (\Exception $e, $code) use ($app)
@@ -50,94 +65,6 @@ class Bootstrap
             }
 
             return new Response($message);
-        });
-
-        // Initialize Twig and external service provider
-        $app->register(new Silex\Provider\TwigServiceProvider(), array
-        (
-            'twig.path' => __DIR__ . '/../views',
-        ));
-
-        $app['external_service'] = $app->share(function($app)
-        {
-            return new ExternalService($app);
-        });
-
-        $app['twig']->addFunction(new Twig_SimpleFunction('avatar_uri', function ($player, $size) use ($app)
-        {
-            if (!is_numeric($size))
-            {
-                throw new \InvalidArgumentException;
-            }
-
-            if (!UuidUtilities::validMinecraftUsername($player->getName()))
-            {
-                throw new \InvalidArgumentException;
-            }
-
-            return $app['external_service']->avatarUri($player->getName(), $size);
-        }));
-
-        $app['twig']->addFilter(new \Twig_SimpleFilter('datediff', function ($date)
-        {
-            return $date->diffForHumans();
-        }));
-
-        // Initialize security manager and user provider
-        $app->register(new Silex\Provider\SessionServiceProvider());
-        $app->register(new Silex\Provider\SecurityServiceProvider());
-        $app->register(new SimpleUser\UserServiceProvider());
-
-        $app['security.firewalls'] = array
-        (
-            'secured_area' => array
-            (
-                'pattern' => '^.*$',
-                'anonymous' => true,
-                //'remember_me' => array(),
-                'form' => array
-                (
-                    'login_path' => '/auth/login',
-                    'check_path' => '/auth/login_check',
-                ),
-                'logout' => array
-                (
-                    'logout_path' => '/auth/logout',
-                ),
-                'users' => $app->share(function($app) { return $app['user.manager']; }),
-            ),
-        );
-
-        // Initialize settings manager
-        $app['settings_manager'] = $app->share(function($app)
-        {
-            return new SettingsManager($app);
-        });
-
-        // Now we have enough infrastructure running to determine everything else
-        $banning_plugin_backend = $app['settings_manager']->get('backend');
-        $manager = new AdminPluginRegistry();
-        $plugin = $manager->get($banning_plugin_backend);
-
-        if (!$plugin)
-        {
-            die("The specified banning plugin backend " . $banning_plugin_backend . " is no longer valid.");
-        }
-
-        $app['profile_repository'] = $app->share(function($app) use ($plugin)
-        {
-            return new CachingProfileRepository($plugin->getProfileRepository($app), $app['db']);
-        });
-
-        $app['lookup_repository'] = $app->share(function($app) use ($plugin)
-        {
-            // CachingProfileRepository implements our lookup repository.
-            return $app['profile_repository'];
-        });
-
-        $app['ban_repository'] = $app->share(function($app) use ($plugin)
-        {
-            return $plugin->getBanRepository($app);
         });
 
         $app->get('/', 'MadBans\Controllers\IndexController::index')->bind('home');

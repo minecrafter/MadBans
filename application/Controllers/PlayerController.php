@@ -62,7 +62,15 @@ class PlayerController
         // TODO: Uncomment above section when security is sufficiently working.
         $bans = $app['ban_repository']->getBans($p, NULL);
 
-        return $app['twig']->render('player/player.twig', ['player' => $p, 'bans' => $bans]);
+        if ($app['ban_repository']->isCurrentlyBanned($p, NULL))
+        {
+            $status = "globalban";
+        } else
+        {
+            $status = FALSE;
+        }
+
+        return $app['twig']->render('player/player.twig', ['player' => $p, 'bans' => $bans, 'status' => $status]);
     }
 
     public function lookahead(Silex\Application $app, Request $request)
